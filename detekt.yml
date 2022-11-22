@@ -1,0 +1,212 @@
+# Overrides the defaults specified in https://github.com/detekt/detekt/blob/master/detekt-core/src/main/resources/default-detekt-config.yml
+
+config:
+  validation: true
+  warningsAsErrors: true
+
+#import:
+#  EnforceStaticImport:
+#    active: true
+#    methods:
+#      - 'com.google.common.truth.Truth.assertThat'
+#      - 'org.junit.jupiter.params.provider.Arguments.arguments'
+
+comments:
+  active: true
+  EndOfSentenceFormat:
+    active: true
+    excludes: ['**/test/**']
+    endOfSentenceFormat: '([.?!][ \t\n\r\f<])|([.?!:]$)'
+  UndocumentedPublicClass:
+    active: true
+    excludes: ['**/test/**']
+    searchInNestedClass: true
+    searchInInnerClass: true
+    searchInInnerObject: true
+    searchInInnerInterface: true
+  UndocumentedPublicFunction:
+    excludes: ['**/test/**']
+    active: true
+  UndocumentedPublicProperty:
+    excludes: ['**/test/**']
+    active: true
+
+complexity:
+  active: false
+
+exceptions:
+  active: true
+  InstanceOfCheckForException:
+    active: true
+  ObjectExtendsThrowable:
+    active: true
+  ThrowingExceptionsWithoutMessageOrCause:
+    active: true
+  TooGenericExceptionCaught:
+    active: true
+    exceptionNames:
+     - ArrayIndexOutOfBoundsException
+     - Error
+     - Exception
+     - IllegalMonitorStateException
+     - NullPointerException
+     - IndexOutOfBoundsException
+     - RuntimeException
+     - Throwable
+    allowedExceptionNameRegex: '_|(ignore|expected|cause).*'
+
+# The naming rules exclude test classes by default. Since we want naming rules to apply
+# to test classes, we need to override the default exclude rules with an empty list.
+naming:
+  active: true
+  ClassNaming:
+    excludes: []
+  ConstructorParameterNaming:
+    excludes: []
+  EnumNaming:
+    excludes: []
+  InvalidPackageDeclaration:
+    active: true
+    excludes: ['*.kts']
+  ObjectPropertyNaming:
+    excludes: []
+  PackageNaming:
+    excludes: []
+  TopLevelPropertyNaming:
+    excludes: []
+  VariableNaming:
+    excludes: []
+
+potential-bugs:
+  active: true
+  CastToNullableType:
+    active: true
+  DontDowncastCollectionTypes:
+    active: true
+  ExitOutsideMain:
+    active: true
+  HasPlatformType:
+    active: true
+  IgnoredReturnValue:
+    active: true
+    restrictToAnnotatedMethods: true
+    returnValueAnnotations: ['*.CheckReturnValue', '*.CheckResult']
+  MapGetWithNotNullAssertionOperator:
+    active: true
+  NullableToStringCall:
+    active: true
+  UnconditionalJumpStatementInLoop:
+    active: true
+  UnreachableCatchBlock:
+    active: true
+  UnusedUnaryOperator:
+    active: true
+  UselessPostfixExpression:
+    active: true
+
+style:
+  active: true
+  ClassOrdering:
+    active: true
+  CollapsibleIfStatements:
+    active: true
+  DataClassShouldBeImmutable:
+    active: true
+  EqualsOnSignatureLine:
+    active: true
+  ExplicitCollectionElementAccessMethod:
+    active: true
+  ExpressionBodySyntax:
+    active: true
+    includeLineWrapping: true
+  ForbiddenImport:
+    active: true
+    imports:
+      - 'org.junit.Assert'
+      - 'org.junit.Test'
+      - 'org.junit.Before'
+      - 'org.junit.BeforeClass'
+      - 'org.junit.After'
+      - 'org.junit.AfterClass'
+    forbiddenPatterns: 'junit.framework.*'
+  ForbiddenComment:
+    active: true
+    values: ['FIXME', 'STOPSHIP']
+  ForbiddenMethodCall:
+    active: true
+    excludes: ['**/test/**']
+    methods:
+      - 'kotlin.io.println'
+      - 'kotlin.io.print'
+  ForbiddenPublicDataClass:
+    active: true
+    excludes: ['**']
+    ignorePackages: ['*.internal', '*.internal.*']
+  ForbiddenVoid:
+    active: true
+    ignoreOverridden: false
+    ignoreUsageInGenerics: false
+  LibraryCodeMustSpecifyReturnType:
+    # Enforced by the compiler
+    active: false
+  LibraryEntitiesShouldNotBePublic:
+    # Enforced by the compiler
+    active: false
+  MandatoryBracesIfStatements:
+    active: true
+  MandatoryBracesLoops:
+    active: true
+  MaxLineLength:
+    # Specified by editorconfig & enforced by ktlint
+    active: false
+  NewLineAtEndOfFile:
+    # Specified by editorconfig & enforced by ktlint
+    active: false
+  OptionalWhenBraces:
+    active: true
+  RedundantExplicitType:
+    active: true
+  RedundantHigherOrderMapUsage:
+    active: true
+  # TODO: Detekt complains about redundant modifiers even though explicitApi is set to 'strict' in build.gradle.kts
+  RedundantVisibilityModifierRule:
+    active: false
+  ReturnCount:
+    active: false
+  SpacingBetweenPackageAndImports:
+    active: true
+  UnderscoresInNumericLiterals:
+    active: true
+    acceptableLength: 5
+  UnnecessaryFilter:
+    active: true
+  UnnecessaryLet:
+    active: true
+  UntilInsteadOfRangeTo:
+    active: true
+  UseArrayLiteralsInAnnotations:
+    active: true
+  UseCheckNotNull:
+    active: true
+  UseCheckOrError:
+    active: true
+  UseEmptyCounterpart:
+    active: true
+  UseIfEmptyOrIfBlank:
+    active: true
+  UseIfInsteadOfWhen:
+    active: true
+  UseIsNullOrEmpty:
+    active: true
+  UseOrEmpty:
+    active: true
+  UseRequire:
+    active: true
+  UseRequireNotNull:
+    active: true
+  WildcardImport:
+    # Specified by editorconfig and enforced by ktlint
+    active: false
+  MagicNumber:
+    # We usually catch these in code review, and more often than not, the constants aren't very magical
+    active: false
