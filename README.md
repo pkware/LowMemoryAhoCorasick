@@ -19,6 +19,24 @@ This particular implementation of the Aho-Corasick algorithm was inspired by
 for the algorithm. For details on how this implementation of the algorithm works see `AhoCorasickBase`, all functions
 are extensively documented.
 
+## Dependency
+
+If using gradle one should use the following in their `build.gradle.kts` file's dependency block.
+
+```Kotlin
+implementation("com.pkware.ahocorasick:low-memory-aho-corasick:1.0.0")
+```
+
+If using POM one can use the following for the latest version of the library.
+
+```
+<dependency>
+  <groupId>com.pkware.ahocorasick</groupId>
+  <artifactId>low-memory-aho-corasick</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
 ## Usage
 
 Two versions of the algorithm exist.
