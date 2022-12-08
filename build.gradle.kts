@@ -1,5 +1,4 @@
 import io.gitlab.arturbosch.detekt.Detekt
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.7.21"
@@ -12,7 +11,6 @@ plugins {
 group = "com.pkware.ahocorasick"
 val lowMemoryAhoCorasickVersion: String by project
 version = lowMemoryAhoCorasickVersion
-val kotlinJvmTarget = "1.8"
 
 repositories {
     mavenCentral()
@@ -28,16 +26,12 @@ tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = kotlinJvmTarget
-}
-
 kotlin {
     explicitApi()
+    jvmToolchain { languageVersion.set(JavaLanguageVersion.of(8)) }
 }
 
 tasks.withType<Detekt>().configureEach {
-    jvmTarget = kotlinJvmTarget
     parallel = true
     config.from(rootProject.file("detekt.yml"))
     buildUponDefaultConfig = true
