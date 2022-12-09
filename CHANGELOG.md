@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased](https://github.com/pkware/LowMemoryAhoCorasick/tree/main)
+### Fixed
+- Versioning information for examples in README.md. Added reminder of this to publishing checklist.
 
 ## [1.1.0](https://github.com/pkware/LowMemoryAhoCorasick/tree/1.1.0)
 ### Fixed

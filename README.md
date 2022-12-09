@@ -24,7 +24,7 @@ are extensively documented.
 If using gradle one should use the following in their `build.gradle.kts` file's dependency block.
 
 ```Kotlin
-implementation("com.pkware.ahocorasick:low-memory-aho-corasick:1.0.0")
+implementation("com.pkware.ahocorasick:low-memory-aho-corasick:1.1.0")
 ```
 
 If using POM one can use the following for the latest version of the library.
@@ -33,7 +33,7 @@ If using POM one can use the following for the latest version of the library.
 <dependency>
   <groupId>com.pkware.ahocorasick</groupId>
   <artifactId>low-memory-aho-corasick</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -140,17 +140,18 @@ Time required to add all dictionary terms and call `build` for each algorithm.
 1. Make and checkout a release branch on github.
 2. Change the version in gradle.properties to a non-SNAPSHOT version.
 3. Update the CHANGELOG.md for the impending release.
-4. Run `git commit -am "Release Low Memory Aho-Corasick X.Y.Z."` (where X.Y.Z is the new version) in the terminal or command
+4. Update README.md to use the latest version in its POM and Gradle examples.
+5. Run `git commit -am "Release Low Memory Aho-Corasick X.Y.Z."` (where X.Y.Z is the new version) in the terminal or command
    line.
-5. Make a PR with your changes.
-6. Merge the release PR after approval, tag the commit on the main branch with
+6. Make a PR with your changes.
+7. Merge the release PR after approval, tag the commit on the main branch with
    `git tag -a X.Y.Z -m "Low Memory Aho-Corasick X.Y.Z"`(X.Y.Z is the new version).
-7. Run `git push --tags`.
-8. Run `./gradlew publish` in the terminal or command line.
-9. Visit [Sonatype Nexus](https://oss.sonatype.org/) and promote the artifact.
-10. Update `gradle.properties` to the next SNAPSHOT version.
-11. Run `git commit -am "Prepare next development version."`
-12. Make a PR with your changes.
-13. Merge the next version PR after approval.
+8. Run `git push --tags`.
+9. Run `./gradlew publish` in the terminal or command line.
+10. Visit [Sonatype Nexus](https://oss.sonatype.org/) and promote the artifact.
+11. Update `gradle.properties` to the next SNAPSHOT version.
+12. Run `git commit -am "Prepare next development version."`
+13. Make a PR with your changes.
+14. Merge the next version PR after approval.
 
 If step 8 or 9 fails, drop the Sonatype repo, fix the problem, commit, and start again at step 8.
