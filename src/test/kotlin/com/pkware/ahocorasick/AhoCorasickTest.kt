@@ -1,6 +1,7 @@
 package com.pkware.ahocorasick
 
 import com.google.common.truth.Truth.assertThat
+import com.pkware.ahocorasick.AhoCorasickOption.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -195,6 +196,111 @@ class AhoCorasickTest {
         assertDoesNotThrow { ahoCorasick.build() }
     }
 
+    @ParameterizedTest
+    @MethodSource("caseInsensitiveAhoCorasickStructures")
+    internal fun `shifts ranges of results when lowercase text expands`(ahoCorasick: StringAhoCorasickWrapper) {
+
+        ahoCorasick.addString("a")
+        ahoCorasick.build()
+
+        // When converted to lowercase, İ will cause the string to go from a length of 11 to 16.
+        // If not handled correctly, this will cause problems with case-insensitive AhoCorasick structures.
+        val expandingString = "İ a İİİ a İ"
+        val results = ahoCorasick.wrappedAhoCorasick.parse(expandingString).toList()
+
+        assertThat(results[0].start).isEqualTo(2)
+        assertThat(results[0].end).isEqualTo(3)
+        assertThat(results[0].value).isEqualTo("a")
+
+        assertThat(results[1].start).isEqualTo(8)
+        assertThat(results[1].end).isEqualTo(9)
+        assertThat(results[1].value).isEqualTo("a")
+    }
+
+    @ParameterizedTest
+    @MethodSource("caseInsensitiveAhoCorasickStructures")
+    internal fun `u0307 character at start of string does NOT cause issues`(ahoCorasick: StringAhoCorasickWrapper) {
+
+        ahoCorasick.addString("a")
+        ahoCorasick.build()
+
+        assertThat(ahoCorasick.parse("\u0307İ a").first()).isEqualTo("a")
+    }
+
+    @Test
+    internal fun `generic structure handles keys that expand when converted to lowercase`() {
+
+        val ahoCorasick = StringAhoCorasick(setOf(CASE_INSENSITIVE))
+
+        ahoCorasick.apply {
+            add("İ")
+            add("I")
+            add("\u0307")
+            add("_")
+            add("_İ_i\u0307_İ_")
+            add("_I")
+            build()
+        }
+
+        val results = ahoCorasick.parse("_İ_i\u0307_İ_").toList()
+        assertThat(results).containsExactly(
+            AhoCorasickResult(0, 1, "_"),
+            AhoCorasickResult(0, 2, "_İ"),
+            AhoCorasickResult(1, 2, "İ"),
+            AhoCorasickResult(1, 2, "İ"),
+            AhoCorasickResult(1, 2, "İ"),
+            AhoCorasickResult(2, 3, "_"),
+            AhoCorasickResult(2, 4, "_i"),
+            AhoCorasickResult(3, 4, "i"),
+            AhoCorasickResult(3, 5, "i\u0307"),
+            AhoCorasickResult(4, 5, "\u0307"),
+            AhoCorasickResult(5, 6, "_"),
+            AhoCorasickResult(5, 7, "_İ"),
+            AhoCorasickResult(6, 7, "İ"),
+            AhoCorasickResult(6, 7, "İ"),
+            AhoCorasickResult(6, 7, "İ"),
+            AhoCorasickResult(0, 8, "_İ_i\u0307_İ_"),
+            AhoCorasickResult(7, 8, "_"),
+        ).inOrder()
+    }
+
+    @Test
+    internal fun `test2`() {
+
+        val ahoCorasick = AhoCorasick<String>(setOf(CASE_INSENSITIVE))
+
+        ahoCorasick.apply {
+            add("İ", "İ")
+            add("I", "I")
+            add("\u0307", "\u0307")
+            add("_", "_")
+            add("_İ_i\u0307_İ_", "_İ_i\u0307_İ_")
+            add("_I", "_I")
+            build()
+        }
+
+        val results = ahoCorasick.parse("_İ_i\u0307_İ_").toList()
+        assertThat(results).containsExactly(
+            AhoCorasickResult(0, 1, "_"),
+            AhoCorasickResult(0, 2, "_I"),
+            AhoCorasickResult(1, 2, "I"),
+            AhoCorasickResult(1, 2, "İ"),
+            AhoCorasickResult(1, 2, "\u0307"),
+            AhoCorasickResult(2, 3, "_"),
+            AhoCorasickResult(2, 4, "_I"),
+            AhoCorasickResult(3, 4, "I"),
+            AhoCorasickResult(3, 5, "İ"),
+            AhoCorasickResult(4, 5, "\u0307"),
+            AhoCorasickResult(5, 6, "_"),
+            AhoCorasickResult(5, 7, "_I"),
+            AhoCorasickResult(6, 7, "I"),
+            AhoCorasickResult(6, 7, "İ"),
+            AhoCorasickResult(6, 7, "\u0307"),
+            AhoCorasickResult(0, 8, "_İ_i\u0307_İ_"),
+            AhoCorasickResult(7, 8, "_"),
+        ).inOrder()
+    }
+
     @Test
     internal fun `generic structure replaces value on duplicate keys`() {
 
@@ -268,7 +374,7 @@ class AhoCorasickTest {
     @Test
     fun `string structure returns same casing as input when case insensitive`() {
 
-        val ahoCorasick = StringAhoCorasick(setOf(AhoCorasickOption.CASE_INSENSITIVE)).apply {
+        val ahoCorasick = StringAhoCorasick(setOf(CASE_INSENSITIVE)).apply {
             add("np")
             add("ty")
             add("PARTY")
@@ -289,14 +395,14 @@ class AhoCorasickTest {
 
         @JvmStatic
         fun caseInsensitiveAhoCorasickStructures(): Stream<Arguments> = Stream.of(
-            arguments(StringAhoCorasickWrapper(AhoCorasick(setOf(AhoCorasickOption.CASE_INSENSITIVE)))),
-            arguments(StringAhoCorasickWrapper(StringAhoCorasick(setOf(AhoCorasickOption.CASE_INSENSITIVE)))),
+            arguments(StringAhoCorasickWrapper(AhoCorasick(setOf(CASE_INSENSITIVE)))),
+            arguments(StringAhoCorasickWrapper(StringAhoCorasick(setOf(CASE_INSENSITIVE)))),
         )
 
         @JvmStatic
         fun wholeWordAhoCorasickStructures(): Stream<Arguments> = Stream.of(
-            arguments(StringAhoCorasickWrapper(AhoCorasick(setOf(AhoCorasickOption.WHOLE_WORDS_ONLY)))),
-            arguments(StringAhoCorasickWrapper(StringAhoCorasick(setOf(AhoCorasickOption.WHOLE_WORDS_ONLY)))),
+            arguments(StringAhoCorasickWrapper(AhoCorasick(setOf(WHOLE_WORDS_ONLY)))),
+            arguments(StringAhoCorasickWrapper(StringAhoCorasick(setOf(WHOLE_WORDS_ONLY)))),
         )
     }
 

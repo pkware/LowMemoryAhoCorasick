@@ -77,11 +77,6 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      */
     public val findOnlyWholeWords: Boolean
 
-    init {
-        isCaseSensitive = !options.contains(AhoCorasickOption.CASE_INSENSITIVE)
-        findOnlyWholeWords = options.contains(AhoCorasickOption.WHOLE_WORDS_ONLY)
-    }
-
     /**
      * Caches the index of [store] where all previous indexes are assumed to be in use by nodes.
      *
@@ -100,6 +95,18 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      * node with many children.
      */
     private var multiChildCache = 0
+
+    /**
+     * Stores the value of the normalized key with the maximum length when [isCaseSensitive] is `true`. `0` otherwise.
+     *
+     * Used for mapping [AhoCorasickResult] ranges generated from a normalized input to the (potentially smaller length)
+     * original input in constant time while using the least amount of memory possible.
+     *
+     * @See normalize
+     */
+    private var maxKeyLength = 0
+
+    private var containsDynamicKeys: Boolean = false
 
     /**
      * Whether [build] has been called.
@@ -144,6 +151,8 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
     private val indexCache = IndexCache(store)
 
     init {
+        isCaseSensitive = !options.contains(AhoCorasickOption.CASE_INSENSITIVE)
+        findOnlyWholeWords = options.contains(AhoCorasickOption.WHOLE_WORDS_ONLY)
         store.synchronizedSafeSet(ROOT_NODE, 0, ROOT_NODE, RESERVED_VALUE, RESERVED_VALUE, RESERVED_VALUE)
     }
 
@@ -163,9 +172,15 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      *        would be `6`.
      * @param value The value associated with a key during [addEntry].
      * @param input The text the key was originally found in.
+     * @param indexMapper TODO
      * @return [AhoCorasickResult] storing information about a match in some string.
      */
-    protected abstract fun generateResult(index: Int, value: Int, input: String): AhoCorasickResult<T>
+    protected abstract fun generateResult(
+        index: Int,
+        value: Int,
+        input: String,
+        indexMapper: (Int) -> Int // TODO Rename?
+    ): AhoCorasickResult<T>
 
     /**
      * Attempts to build the Aho-Corasick structure.
@@ -261,19 +276,22 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      * to this structure, breaking things depending on how the subclass determines which values should be associated
      * with certain keys.
      *
-     * @param key Key associated with a value. A duplicate key replaces the previous value.
+     * @param normalizedKey Key associated with a value. A duplicate key replaces the previous value.
      * @param value Value associated with a key. Assumed to __NEVER__ equal [RESERVED_VALUE].
-     * @throws IllegalArgumentException When [key] is empty.
+     * @throws IllegalArgumentException When [normalizedKey] is empty.
      * @throws IllegalStateException When [build] has already been called.
      */
     @Synchronized
     @Throws(IllegalArgumentException::class, IllegalStateException::class)
-    protected fun addEntry(key: String, value: Int) {
+    protected fun addEntry(normalizedKey: String, value: Int) {
 
         check(!isBuilt) { "Can't add entries after `build` has been called!" }
-        require(key.isNotEmpty()) { "Key can not be empty!" }
+        require(normalizedKey.isNotEmpty()) { "Key can not be empty!" }
 
-        val normalizedKey = key.normalize()
+        if (!isCaseSensitive) {
+            maxKeyLength = max(maxKeyLength, normalizedKey.length)
+            containsDynamicKeys = containsDynamicKeys || normalizedKey.uppercase(Locale.ROOT).contains('İ')
+        }
 
         var currentNode = ROOT_NODE
 
@@ -843,33 +861,52 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
          * Both the original and normalized casing are needed in order for [generateResult] to generate results which
          * have the same casing as [input].
          */
-        val normalizedInput = input.normalize()
+        private val normalizedInput = input.normalize()
 
         /**
          * The current state of the Aho-Corasick structure.
          *
          * Allows for lazily returning values via [tryAdvance].
          */
-        var currentNode = ROOT_NODE
+        private var currentNode = ROOT_NODE
 
         /**
-         * The next index of [input] to advance the state of the Aho-Corasick structure.
+         * The index of [input] that is passed to [generateResult] when a match in the Aho-Corasick structure is found.
+         *
+         * May be different from [normalizedInput] in [input] contains characters which are mapped to multiple
+         * characters when converted to lowercase.
+         */
+        private var inputIndex = 0
+
+        /**
+         * The next index of [normalizedInput] to advance the state of the Aho-Corasick structure. May be different from
+         * [inputIndex] if the given string has characters which cause [normalizedInput] to be larger than [input].
          *
          * Used to by [tryAdvance] to lazily return results.
          */
-        var currentInputIndex = 0
+        private var normalizedIndex = 0
 
-        var nextNode: Int = RESERVED_VALUE
+        private var nextNode: Int = RESERVED_VALUE
 
+        private val circularOffsetArray: IntArray? = if (containsDynamicKeys) null else IntArray(maxKeyLength + 1)
+
+        // TODO Ensure this fits under 35 bytecode size.
         override fun tryAdvance(action: Consumer<in AhoCorasickResult<T>>): Boolean {
 
-            while (currentInputIndex < normalizedInput.length || nextNode != RESERVED_VALUE) {
+            while (normalizedIndex < normalizedInput.length || nextNode != RESERVED_VALUE) {
 
                 var nextValue: Int
                 if (nextNode == RESERVED_VALUE) {
-                    currentNode = calculateNextState(currentNode, normalizedInput[currentInputIndex++].code)
+
+                    if (shouldAdvanceInputIndex()) inputIndex++
+
+                    currentNode = calculateNextState(currentNode, normalizedInput[normalizedIndex++].code)
                     nextNode = store.getPrefixIndex(currentNode)
                     nextValue = store.getValue(currentNode)
+
+                    if (circularOffsetArray != null) {
+                        circularOffsetArray[normalizedIndex % circularOffsetArray.size] = normalizedIndex - inputIndex
+                    }
 
                     // Determine if the current node is the end of a string.
                     if (nextValue == RESERVED_VALUE) continue
@@ -880,7 +917,7 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
                     nextNode = store.getPrefixIndex(nextNode)
                 }
 
-                val result = generateResult(currentInputIndex, nextValue, input)
+                val result = generateResult(inputIndex, nextValue, input, ::calculateStartingIndex)
                 if (!findOnlyWholeWords || passesWhitespaceChecks(result, normalizedInput)) {
                     action.accept(result)
                     return true
@@ -889,12 +926,41 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
 
             return false
         }
+
+        /**
+         * When converting input to lowercase using [Locale.ROOT], the İ character (and only the İ character) will be
+         * mapped from one to two characters, those being `i` (`\u0069`) and `\u0307`, which appends a dot on top of
+         * the character before it. This can cause a mismatch between the length of [normalizedInput] and [input], which
+         * in turn could cause the index passed to by [generateResult] to be inaccurate, since it only deals with the
+         * original string parsed. In order to correct for this potential error, the index for [input] is only advanced
+         * a single time (which corresponds to the original İ character), while the index for [normalizedInput] should
+         * be advanced twice (once for `i`, and another for `\u0307`). [input] is immediately advanced when coming
+         * across an `\u0069\u0307` sequence, which insures one should never produce a [AhoCorasickResult] which has
+         * the same start and end index.
+         */
+        private fun shouldAdvanceInputIndex(): Boolean =
+            isCaseSensitive ||
+                normalizedInput[normalizedIndex] != '\u0307' ||
+                inputIndex == 0 ||
+                input[inputIndex - 1] != 'İ'
+
+        private fun calculateStartingIndex(keyLength: Int): Int {
+
+            if (isCaseSensitive) return inputIndex - keyLength
+
+            val circularStartIndex = (normalizedIndex - keyLength + 1 + circularOffsetArray!!.size) % circularOffsetArray.size
+            val circularEndIndex = normalizedIndex % circularOffsetArray.size
+
+            val growingCharCount = circularOffsetArray[circularEndIndex] - circularOffsetArray[circularStartIndex]
+
+            return inputIndex - keyLength + growingCharCount
+        }
     }
 
     /**
      * Makes the string lowercase if [isCaseSensitive] is `false`, null-op otherwise.
      */
-    private fun String.normalize(): String = if (isCaseSensitive) this else lowercase(Locale.ROOT)
+    protected fun String.normalize(): String = if (isCaseSensitive) this else lowercase()
 
     private companion object {
 

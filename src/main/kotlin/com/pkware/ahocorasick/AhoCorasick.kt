@@ -62,9 +62,10 @@ public open class AhoCorasick<T> @JvmOverloads constructor(options: Set<AhoCoras
      */
     public fun add(key: String, value: T) {
 
-        addEntry(key, storedValues.size)
+        val normalizedKey = key.normalize()
+        addEntry(normalizedKey, storedValues.size)
         storedValues.add(value)
-        keyLengths.add(key.length)
+        keyLengths.add(normalizedKey.length)
     }
 
     /**
@@ -102,6 +103,11 @@ public open class AhoCorasick<T> @JvmOverloads constructor(options: Set<AhoCoras
         return false
     }
 
-    override fun generateResult(index: Int, value: Int, input: String): AhoCorasickResult<T> =
-        AhoCorasickResult(index - keyLengths[value], index, storedValues[value])
+    override fun generateResult(index: Int, value: Int, input: String, indexMapper: (Int) -> Int): AhoCorasickResult<T> {
+
+        val test = storedValues[value]
+        val first = indexMapper(keyLengths[value])
+
+        return AhoCorasickResult(first, index, storedValues[value])
+    }
 }
