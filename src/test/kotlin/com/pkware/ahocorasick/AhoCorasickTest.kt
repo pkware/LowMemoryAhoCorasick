@@ -195,6 +195,20 @@ class AhoCorasickTest {
         assertDoesNotThrow { ahoCorasick.build() }
     }
 
+    @ParameterizedTest
+    @MethodSource("caseInsensitiveAhoCorasickStructures")
+    internal fun `maintains string length when handling case insensitivity`(ahoCorasick: StringAhoCorasickWrapper) {
+
+        ahoCorasick.addString("0")
+        ahoCorasick.build()
+
+        val result = ahoCorasick.wrappedAhoCorasick.parse("İ0").toList().first()
+
+        // If handled in a way that didn't maintain string lengths, İ would map to two characters, giving invalid bounds
+        // for the '0' character match.
+        assertThat(result).isEqualTo(AhoCorasickResult(1, 2, "0"))
+    }
+
     @Test
     internal fun `generic structure replaces value on duplicate keys`() {
 
