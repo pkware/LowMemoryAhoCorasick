@@ -1,7 +1,10 @@
 # Change Log
 
 ## [Unreleased](https://github.com/pkware/LowMemoryAhoCorasick/tree/main)
+
+## [1.1.1](https://github.com/pkware/LowMemoryAhoCorasick/tree/1.1.1)
 ### Fixed
+- Issue where result ranges would be incorrect or cause crashes due to changing string sizes when disabling case-sensitivity.
 - Versioning information for examples in README.md. Added reminder of this to publishing checklist.
 
 ## [1.1.0](https://github.com/pkware/LowMemoryAhoCorasick/tree/1.1.0)
