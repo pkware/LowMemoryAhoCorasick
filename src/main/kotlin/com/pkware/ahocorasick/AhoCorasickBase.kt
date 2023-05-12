@@ -1,7 +1,6 @@
 package com.pkware.ahocorasick
 
 import com.pkware.ahocorasick.AhoCorasickStore.Companion.RESERVED_VALUE
-import java.util.Locale
 import java.util.Spliterators
 import java.util.function.Consumer
 import java.util.stream.Stream
@@ -838,14 +837,6 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
         Spliterators.AbstractSpliterator<AhoCorasickResult<T>>(Long.MAX_VALUE, DISTINCT.or(NONNULL).or(IMMUTABLE)) {
 
         /**
-         * The normalized form of [input].
-         *
-         * Both the original and normalized casing are needed in order for [generateResult] to generate results which
-         * have the same casing as [input].
-         */
-        val normalizedInput = input.normalize()
-
-        /**
          * The current state of the Aho-Corasick structure.
          *
          * Allows for lazily returning values via [tryAdvance].
@@ -863,11 +854,11 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
 
         override fun tryAdvance(action: Consumer<in AhoCorasickResult<T>>): Boolean {
 
-            while (currentInputIndex < normalizedInput.length || nextNode != RESERVED_VALUE) {
+            while (currentInputIndex < input.length || nextNode != RESERVED_VALUE) {
 
                 var nextValue: Int
                 if (nextNode == RESERVED_VALUE) {
-                    currentNode = calculateNextState(currentNode, normalizedInput[currentInputIndex++].code)
+                    currentNode = calculateNextState(currentNode, input[currentInputIndex++].normalize().code)
                     nextNode = store.getPrefixIndex(currentNode)
                     nextValue = store.getValue(currentNode)
 
@@ -881,7 +872,7 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
                 }
 
                 val result = generateResult(currentInputIndex, nextValue, input)
-                if (!findOnlyWholeWords || passesWhitespaceChecks(result, normalizedInput)) {
+                if (!findOnlyWholeWords || passesWhitespaceChecks(result, input)) {
                     action.accept(result)
                     return true
                 }
@@ -892,9 +883,26 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
     }
 
     /**
-     * Makes the string lowercase if [isCaseSensitive] is `false`, null-op otherwise.
+     * Makes the string lowercase via character by character transformation if [isCaseSensitive] is `false`, null-op
+     * otherwise.
+     *
+     * Character by character transformation is done to keep the length of the normalized string the same as the
+     * original.
      */
-    private fun String.normalize(): String = if (isCaseSensitive) this else lowercase(Locale.ROOT)
+    private fun String.normalize(): String {
+
+        if (isCaseSensitive) return this
+
+        val characters = toCharArray()
+        for (i in characters.indices) characters[i] = Character.toLowerCase(characters[i])
+
+        return String(characters)
+    }
+
+    /**
+     * Makes the character lowercase if [isCaseSensitive] is `false`, null-op otherwise.
+     */
+    private fun Char.normalize(): Char = if (isCaseSensitive) this else Character.toLowerCase(this)
 
     private companion object {
 
