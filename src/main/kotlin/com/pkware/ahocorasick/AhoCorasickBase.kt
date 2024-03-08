@@ -547,7 +547,19 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
         val encroachingChildren = determineChildOffsets(encroachingParentIndex, childrenOffsetStore2)
         encroachingChildren.add(wantedInsertion)
 
-        val toMoveParent = if (encroachingChildren.size > originalChildren.size) originalParentIndex else encroachingParentIndex
+        val wouldMoveRoot = wantedInsertion == 0 && store.getBaseOffset(encroachingParentIndex) == 0
+
+        // Usually the node with the least amount of children will have its children moved. There is an edge case where
+        // if a node were to have a base offset of zero and attempt to add the character `\u0000` as a child, the root
+        // node itself would need to be shifted. This can't be allowed to happen, and in this case the encroaching
+        // parent (which will never be the root node since it's base offset is at minimum 1) will be moved, even though
+        // it has more children.
+        val toMoveParent = if (encroachingChildren.size <= originalChildren.size || wouldMoveRoot) {
+            encroachingParentIndex
+        } else {
+            originalParentIndex
+        }
+
         val toMoveChildren = if (toMoveParent == originalParentIndex) originalChildren else encroachingChildren
 
         // Find the new index to store the children of the node with the least children.
