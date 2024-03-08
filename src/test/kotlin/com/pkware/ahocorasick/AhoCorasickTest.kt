@@ -16,6 +16,31 @@ class AhoCorasickTest {
 
     @ParameterizedTest
     @MethodSource("emptyAhoCorasickStructures")
+    internal fun `root node can't be moved by a null character child`(ahoCorasick: StringAhoCorasickWrapper) {
+
+        // First, create the "a" node with the child "c" ("b" cant be used because the root node has a base offset of
+        // one). Then, add the null character to the "a" node, which will cause a conflict between the "a" node with the
+        // root node as the null character is attempted to be placed into the same location as the root node. Normally,
+        // the node with the least amount of children should have its children moved, but this should NOT be the case if
+        // a node that would need to be moved is the root node.
+        ahoCorasick.buildWith("ac", "a\u0000")
+
+        val results = ahoCorasick.parse("aca\u0000")
+        assertThat(results).containsExactly("ac", "a\u0000")
+    }
+
+    @ParameterizedTest
+    @MethodSource("emptyAhoCorasickStructures")
+    internal fun `null character can be used without issue`(ahoCorasick: StringAhoCorasickWrapper) {
+
+        ahoCorasick.buildWith("\u0000", "\u0000cat\u0000")
+
+        val results = ahoCorasick.parse("cat\u0000 \u0000cat\u0000")
+        assertThat(results).containsExactly("\u0000", "\u0000", "\u0000cat\u0000", "\u0000")
+    }
+
+    @ParameterizedTest
+    @MethodSource("emptyAhoCorasickStructures")
     internal fun `can build with no added strings`(ahoCorasick: StringAhoCorasickWrapper) {
         assertDoesNotThrow { ahoCorasick.build() }
     }
