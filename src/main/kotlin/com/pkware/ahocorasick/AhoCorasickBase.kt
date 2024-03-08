@@ -76,11 +76,6 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      */
     public val findOnlyWholeWords: Boolean
 
-    init {
-        isCaseSensitive = !options.contains(AhoCorasickOption.CASE_INSENSITIVE)
-        findOnlyWholeWords = options.contains(AhoCorasickOption.WHOLE_WORDS_ONLY)
-    }
-
     /**
      * Caches the index of [store] where all previous indexes are assumed to be in use by nodes.
      *
@@ -89,16 +84,20 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      * in [store] less than this value are expected to be filled. Only indexes too small for offsets, or those which
      * have had their node moved to a new index will be empty. Empty indexes left behind due to nodes moving are
      * attempted to be used via the [indexCache].
+     *
+     * Begins at `1`, so no attempt is made to insert into the [ROOT_NODE] location.
      */
-    private var singleChildCache = 0
+    private var singleChildCache = 1
 
     /**
      * Caches the last index a node with multiple children was moved to in [store].
      *
      * Future moves will start with this location, as it is assumed the previous indexes are too dense to easily fit a
      * node with many children.
+     *
+     * Begins at `1`, so no attempt is made to insert into the [ROOT_NODE] location.
      */
-    private var multiChildCache = 0
+    private var multiChildCache = 1
 
     /**
      * Whether [build] has been called.
@@ -143,7 +142,15 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
     private val indexCache = IndexCache(store)
 
     init {
-        store.synchronizedSafeSet(ROOT_NODE, 0, ROOT_NODE, RESERVED_VALUE, RESERVED_VALUE, RESERVED_VALUE)
+        // The base offset is started at `1`, because otherwise the character `\u0000` could potentially be inserted as
+        // the value for the root node, which is located at index zero. This problem is unique to the root node because
+        // the root node is the only node which is considered to be its own parent. The root node must have a parent
+        // because the existence of a parent node indicates that a node is in use. Having the parent of the root node
+        // be a valid node that will always exist as opposed to a special value also makes some code cleaner.
+        store.synchronizedSafeSet(ROOT_NODE, 1, ROOT_NODE, RESERVED_VALUE, RESERVED_VALUE, RESERVED_VALUE)
+
+        isCaseSensitive = !options.contains(AhoCorasickOption.CASE_INSENSITIVE)
+        findOnlyWholeWords = options.contains(AhoCorasickOption.WHOLE_WORDS_ONLY)
     }
 
     /**
@@ -418,7 +425,8 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
             hasValidChild = store.safeGetParent(childNode) == currentNode
         }
 
-        return if (hasValidChild) childNode else currentNode
+        // The current node will always be ROOT_NODE if no valid child is found.
+        return if (hasValidChild) childNode else ROOT_NODE
     }
 
     /**
@@ -545,8 +553,8 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
         // Find the new index to store the children of the node with the least children.
         val postMoveBaseOffset = findOpenIndexes(toMoveChildren)
 
-        // The store containing the children not being moved can be reused to store the children of the children which
-        // are being moved.
+        // The store containing the children not being moved can be reused to repeatedly store the children of a child
+        // which is being moved. This is done to reduce memory usage and GC churning.
         val unusedStore = if (toMoveParent == originalParentIndex) encroachingChildren else originalChildren
 
         // The wanted insertion was originally added to encroachingChildren in order to guarantee that it could be
