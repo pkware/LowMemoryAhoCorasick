@@ -89,8 +89,6 @@ potential-bugs:
     active: true
   IgnoredReturnValue:
     active: true
-    restrictToAnnotatedMethods: true
-    returnValueAnnotations: ['*.CheckReturnValue', '*.CheckResult']
   MapGetWithNotNullAssertionOperator:
     active: true
   NullableToStringCall:
@@ -131,29 +129,19 @@ style:
     forbiddenPatterns: 'junit.framework.*'
   ForbiddenComment:
     active: true
-    values: ['FIXME', 'STOPSHIP']
+    comments: ['FIXME', 'STOPSHIP']
   ForbiddenMethodCall:
     active: true
     excludes: ['**/test/**']
     methods:
       - 'kotlin.io.println'
       - 'kotlin.io.print'
-  ForbiddenPublicDataClass:
-    active: true
-    excludes: ['**']
-    ignorePackages: ['*.internal', '*.internal.*']
   ForbiddenVoid:
     active: true
     ignoreOverridden: false
     ignoreUsageInGenerics: false
-  LibraryCodeMustSpecifyReturnType:
-    # Enforced by the compiler
-    active: false
-  LibraryEntitiesShouldNotBePublic:
-    # Enforced by the compiler
-    active: false
-  MandatoryBracesIfStatements:
-    active: true
+  BracesOnIfStatements:
+    singleLine: consistent
   MandatoryBracesLoops:
     active: true
   MaxLineLength:
@@ -162,8 +150,6 @@ style:
   NewLineAtEndOfFile:
     # Specified by editorconfig & enforced by ktlint
     active: false
-  OptionalWhenBraces:
-    active: true
   RedundantExplicitType:
     active: true
   RedundantHigherOrderMapUsage:
