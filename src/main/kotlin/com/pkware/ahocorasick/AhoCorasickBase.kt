@@ -540,7 +540,7 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
     private fun handleBaseOffsetConflict(
         originalParentIndex: Int,
         encroachingParentIndex: Int,
-        wantedInsertion: Int
+        wantedInsertion: Int,
     ): Int {
 
         val originalChildren = determineChildOffsets(originalParentIndex, childrenOffsetStore1)
@@ -593,7 +593,7 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
                 toMoveParent,
                 store.getValue(previousChildIndex),
                 store.getNextSiblingOffset(previousChildIndex),
-                store.getChildOffset(previousChildIndex)
+                store.getChildOffset(previousChildIndex),
             )
 
             // Indicate the previously used space can now be used.
@@ -656,9 +656,10 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
             index,
             RESERVED_VALUE,
             parentIndex,
-            RESERVED_VALUE, // If this node corresponds to the end of a key, the correct value is set later on.
+            // If this node corresponds to the end of a key, the correct value is set later on.
+            RESERVED_VALUE,
             siblingOffset,
-            RESERVED_VALUE
+            RESERVED_VALUE,
         )
     }
 

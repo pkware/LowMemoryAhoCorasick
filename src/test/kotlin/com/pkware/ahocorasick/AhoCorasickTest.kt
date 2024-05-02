@@ -74,7 +74,7 @@ class AhoCorasickTest {
     @ParameterizedTest
     @MethodSource("emptyAhoCorasickStructures")
     internal fun `throws error when objects are added after built has been called`(
-        ahoCorasick: StringAhoCorasickWrapper
+        ahoCorasick: StringAhoCorasickWrapper,
     ) {
         ahoCorasick.build()
         assertThrows<IllegalStateException> { ahoCorasick.addString("value") }
@@ -93,7 +93,7 @@ class AhoCorasickTest {
     @ParameterizedTest
     @MethodSource("emptyAhoCorasickStructures")
     internal fun `words are found in ascending order by ending position, and descending size from same position`(
-        ahoCorasick: StringAhoCorasickWrapper
+        ahoCorasick: StringAhoCorasickWrapper,
     ) {
         ahoCorasick.buildWith("cat", "at", "catapult", "tap", "a", "t")
 
@@ -151,7 +151,7 @@ class AhoCorasickTest {
         ahoCorasick.buildWith("Expected", "Double Expected", "Exp")
 
         val results = ahoCorasick.wrappedAhoCorasick.parse(
-            "Double Expected\tnotExpected notDouble\rExpected Expected\nExpectedNot Exp"
+            "Double Expected\tnotExpected notDouble\rExpected Expected\nExpectedNot Exp",
         ).map { it.start }.toList()
 
         assertThat(results).containsExactly(0, 7, 38, 47, 68)
@@ -211,7 +211,7 @@ class AhoCorasickTest {
     @ParameterizedTest
     @MethodSource("emptyAhoCorasickStructures")
     internal fun `offset greater than length of double array is handled while building`(
-        ahoCorasick: StringAhoCorasickWrapper
+        ahoCorasick: StringAhoCorasickWrapper,
     ) {
         // The below setup would cause an index out of bounds exception if one did not safely get the value at an index.
         ahoCorasick.addString("cab")
