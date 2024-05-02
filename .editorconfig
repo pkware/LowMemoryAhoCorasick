@@ -1,0 +1,8 @@
+root = true
+
+[*]
+insert_final_newline = true
+
+[*.kt*]
+ktlint_code_style = intellij_idea
+ktlint_standard_no-empty-first-line-in-method-block = disabled
