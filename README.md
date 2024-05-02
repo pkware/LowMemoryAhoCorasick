@@ -24,7 +24,7 @@ are extensively documented.
 If using gradle one should use the following in their `build.gradle.kts` file's dependency block.
 
 ```Kotlin
-implementation("com.pkware.ahocorasick:low-memory-aho-corasick:1.1.1")
+implementation("com.pkware.ahocorasick:low-memory-aho-corasick:1.1.2")
 ```
 
 If using POM one can use the following for the latest version of the library.
@@ -33,7 +33,7 @@ If using POM one can use the following for the latest version of the library.
 <dependency>
   <groupId>com.pkware.ahocorasick</groupId>
   <artifactId>low-memory-aho-corasick</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
 </dependency>
 ```
 

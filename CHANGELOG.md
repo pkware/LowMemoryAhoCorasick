@@ -2,6 +2,10 @@
 
 ## [Unreleased](https://github.com/pkware/LowMemoryAhoCorasick/tree/main)
 
+## [1.1.2](https://github.com/pkware/LowMemoryAhoCorasick/tree/1.1.2)
+### Fixed
+- Crashes caused by the `\u0000` character in strings.
+
 ## [1.1.1](https://github.com/pkware/LowMemoryAhoCorasick/tree/1.1.1)
 ### Fixed
 - Issue where result ranges would be incorrect or cause crashes due to changing string sizes when disabling case-sensitivity.
