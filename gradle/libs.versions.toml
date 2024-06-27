@@ -1,5 +1,5 @@
 [versions]
-junitVersion = "5.10.2"
+junitVersion = "5.10.3"
 detektVersion = "1.23.6"
 ktlintVersion = "12.1.0"
 
