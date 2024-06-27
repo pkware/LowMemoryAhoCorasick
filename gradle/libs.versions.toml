@@ -6,7 +6,7 @@ ktlintVersion = "12.1.0"
 [libraries]
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitVersion" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitVersion" }
-truth = "com.google.truth:truth:1.4.2"
+truth = "com.google.truth:truth:1.4.3"
 
 [plugins]
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintVersion" }
