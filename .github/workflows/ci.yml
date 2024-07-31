@@ -23,7 +23,7 @@ jobs:
         java-version: 8
         distribution: 'temurin'
 
-    - uses: burrunan/gradle-cache-action@a54b6ce2cbbba932e5d142129dddef103e6ad143 # v1.19
+    - uses: burrunan/gradle-cache-action@c15634bb25b7284dc084f38dff4e838048b7feaf # v1.22
       name: Build with Gradle
       with:
         arguments: build
