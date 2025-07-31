@@ -15,7 +15,8 @@ package com.pkware.ahocorasick
  *
  * @param options Options which change the default key matching behavior.
 */
-public class StringAhoCorasick @JvmOverloads constructor(options: Set<AhoCorasickOption> = emptySet()) : AhoCorasickBase<String>(options) {
+public class StringAhoCorasick @JvmOverloads constructor(options: Set<AhoCorasickOption> = emptySet()) :
+    AhoCorasickBase<String>(options) {
 
     /**
      * Adds a string to this structure. Null-op on duplicate string.

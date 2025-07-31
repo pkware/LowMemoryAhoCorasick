@@ -321,7 +321,8 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      *
      * Assumes an index at the parent location exists.
      */
-    private fun containsChild(parent: Int, childOffset: Int) = store.safeGetParent(store.getBaseOffset(parent) + childOffset) == parent
+    private fun containsChild(parent: Int, childOffset: Int) =
+        store.safeGetParent(store.getBaseOffset(parent) + childOffset) == parent
 
     /**
      * Constructs the failure and prefix transitions for the nodes in the Aho-Corasick structure.
@@ -436,7 +437,8 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      * @param text The string that [AhoCorasickResult] was derived from.
      * @return `true` if [result] has leading and trailing whitespace, `false` otherwise.
      */
-    private fun passesWhitespaceChecks(result: AhoCorasickResult<T>, text: String) = hasLeadingWhitespace(result, text) && hasTrailingWhitespace(result, text)
+    private fun passesWhitespaceChecks(result: AhoCorasickResult<T>, text: String) =
+        hasLeadingWhitespace(result, text) && hasTrailingWhitespace(result, text)
 
     /**
      * Checks if whitespace, or the end of the string, follows a [result].
@@ -445,7 +447,8 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      * @param text The string that [AhoCorasickResult] was derived from.
      * @return `true` if [result] has trailing whitespace, `false` otherwise.
      */
-    private fun hasTrailingWhitespace(result: AhoCorasickResult<T>, text: String): Boolean = result.end == text.length || WHITESPACE_REGEX.matches(text[result.end].toString())
+    private fun hasTrailingWhitespace(result: AhoCorasickResult<T>, text: String): Boolean =
+        result.end == text.length || WHITESPACE_REGEX.matches(text[result.end].toString())
 
     /**
      * Checks if whitespace, or the start of the string, precedes a [result].
@@ -454,7 +457,8 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      * @param text The string that [AhoCorasickResult] was derived from.
      * @return `true` if [result] has leading whitespace, `false` otherwise.
      */
-    private fun hasLeadingWhitespace(result: AhoCorasickResult<T>, text: String): Boolean = result.start == 0 || WHITESPACE_REGEX.matches(text[result.start - 1].toString())
+    private fun hasLeadingWhitespace(result: AhoCorasickResult<T>, text: String): Boolean =
+        result.start == 0 || WHITESPACE_REGEX.matches(text[result.start - 1].toString())
 
     /**
      * Finds an index where, relative to it, all offsets in [offsets] point to an index not being used by another node.
@@ -850,7 +854,8 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
     /**
      * Used to lazily populate a stream with results from this [AhoCorasickBase].
      */
-    private inner class AhoCorasickSpliterator(private val input: String) : Spliterators.AbstractSpliterator<AhoCorasickResult<T>>(Long.MAX_VALUE, DISTINCT.or(NONNULL).or(IMMUTABLE)) {
+    private inner class AhoCorasickSpliterator(private val input: String) :
+        Spliterators.AbstractSpliterator<AhoCorasickResult<T>>(Long.MAX_VALUE, DISTINCT.or(NONNULL).or(IMMUTABLE)) {
 
         /**
          * The current state of the Aho-Corasick structure.

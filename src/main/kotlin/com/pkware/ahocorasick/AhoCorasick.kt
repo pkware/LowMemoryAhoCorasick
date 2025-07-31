@@ -16,7 +16,8 @@ package com.pkware.ahocorasick
  *
  * @param options Options which change the default key matching behavior.
  */
-public open class AhoCorasick<T> @JvmOverloads constructor(options: Set<AhoCorasickOption> = emptySet()) : AhoCorasickBase<T>(options) {
+public open class AhoCorasick<T> @JvmOverloads constructor(options: Set<AhoCorasickOption> = emptySet()) :
+    AhoCorasickBase<T>(options) {
 
     /**
      * Stores all values added to this structure.
@@ -101,5 +102,9 @@ public open class AhoCorasick<T> @JvmOverloads constructor(options: Set<AhoCoras
         return false
     }
 
-    override fun generateResult(index: Int, value: Int, input: String): AhoCorasickResult<T> = AhoCorasickResult(index - keyLengths[value], index, storedValues[value])
+    override fun generateResult(index: Int, value: Int, input: String): AhoCorasickResult<T> = AhoCorasickResult(
+        index - keyLengths[value],
+        index,
+        storedValues[value],
+    )
 }

@@ -11,9 +11,7 @@ import kotlin.math.max
  *        of the list. A default value is necessary so boxed `int`s do not need to be used to store `null` values which
  *        would require four times the memory.
  */
-internal class DoubleArrayIntList(
-    defaultValue: Int = DEFAULT_VALUE,
-) : SafeIndexable(defaultValue) {
+internal class DoubleArrayIntList(defaultValue: Int = DEFAULT_VALUE) : SafeIndexable(defaultValue) {
 
     /**
      * The number of non-null sub-arrays in [baseArray].
@@ -35,7 +33,8 @@ internal class DoubleArrayIntList(
 
     override operator fun get(index: Int) = baseArray[index shr SUBARRAY_BITS]!![index and SUBARRAY_MASK]
 
-    override operator fun set(index: Int, value: Int) = baseArray[index shr SUBARRAY_BITS]!!.set(index and SUBARRAY_MASK, value)
+    override operator fun set(index: Int, value: Int) =
+        baseArray[index shr SUBARRAY_BITS]!!.set(index and SUBARRAY_MASK, value)
 
     override fun safeSet(index: Int, value: Int): Boolean {
 
