@@ -148,10 +148,9 @@ Time required to add all dictionary terms and call `build` for each algorithm.
    `git tag -a X.Y.Z -m "Low Memory Aho-Corasick X.Y.Z"`(X.Y.Z is the new version).
 8. Run `git push --tags`.
 9. Run `./gradlew publish` in the terminal or command line.
-10. Visit [Sonatype Nexus](https://oss.sonatype.org/) and promote the artifact.
+10. Visit [Sonatype Nexus](https://central.sonatype.com/) to verify the artifact was published
 11. Update `gradle.properties` to the next SNAPSHOT version.
 12. Run `git commit -am "Prepare next development version."`
 13. Make a PR with your changes.
 14. Merge the next version PR after approval.
 
-If step 8 or 9 fails, drop the Sonatype repo, fix the problem, commit, and start again at step 8.
