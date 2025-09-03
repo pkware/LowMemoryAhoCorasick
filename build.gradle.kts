@@ -81,6 +81,7 @@ publishing {
     }
     repositories {
         maven {
+            name = "MavenCentral"
             url = uri(if (version.toString().isReleaseBuild) releaseRepositoryUrl else snapshotRepositoryUrl)
             credentials {
                 username = repositoryUsername
@@ -91,8 +92,15 @@ publishing {
 }
 
 signing {
-    // Signing credentials are stored locally in the user's global gradle.properties file.
+    // Signing credentials are stored as secrets in GitHub.
     // See https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials for more information.
+
+    useInMemoryPgpKeys(
+        signingKeyId,
+        signingKey,
+        signingPassword,
+    )
+
     sign(publishing.publications["mavenJava"])
 }
 
@@ -102,13 +110,13 @@ val String.isReleaseBuild
 val Project.releaseRepositoryUrl: String
     get() = properties.getOrDefault(
         "RELEASE_REPOSITORY_URL",
-        "https://oss.sonatype.org/service/local/staging/deploy/maven2",
+        "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2",
     ).toString()
 
 val Project.snapshotRepositoryUrl: String
     get() = properties.getOrDefault(
         "SNAPSHOT_REPOSITORY_URL",
-        "https://oss.sonatype.org/content/repositories/snapshots",
+        "https://central.sonatype.com/repository/maven-snapshots/",
     ).toString()
 
 val Project.repositoryUsername: String
@@ -116,6 +124,15 @@ val Project.repositoryUsername: String
 
 val Project.repositoryPassword: String
     get() = properties.getOrDefault("NEXUS_PASSWORD", "").toString()
+
+val Project.signingKeyId: String
+    get() = properties.getOrDefault("SIGNING_KEY_ID", "").toString()
+
+val Project.signingKey: String
+    get() = properties.getOrDefault("SIGNING_KEY", "").toString()
+
+val Project.signingPassword: String
+    get() = properties.getOrDefault("SIGNING_PASSWORD", "").toString()
 
 val Project.pomPackaging: String
     get() = properties.getOrDefault("POM_PACKAGING", "jar").toString()

@@ -2,6 +2,9 @@
 
 ## [Unreleased](https://github.com/pkware/LowMemoryAhoCorasick/tree/main)
 
+## [1.1.3](https://github.com/pkware/LowMemoryAhoCorasick/tree/1.1.3)
+- Updated various dependencies
+
 ## [1.1.2](https://github.com/pkware/LowMemoryAhoCorasick/tree/1.1.2)
 ### Fixed
 - Crashes caused by the `\u0000` character in strings.
