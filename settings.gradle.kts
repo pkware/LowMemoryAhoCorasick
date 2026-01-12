@@ -1,4 +1,5 @@
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
     }
@@ -12,15 +13,16 @@ pluginManagement {
 }
 
 plugins {
-    `gradle-enterprise`
+    id("com.gradle.develocity") version "3.19.2"
 }
 
 val isCiServer = System.getenv().containsKey("CI")
 
-gradleEnterprise {
+develocity {
     buildScan {
-        termsOfServiceUrl = "https://gradle.com/terms-of-service"
-        termsOfServiceAgree = "yes"
+        termsOfUseUrl = "https://gradle.com/terms-of-service"
+        termsOfUseAgree.set("yes")
+        publishing.onlyIf { _ -> false }
         if (isCiServer) {
             tag("CI")
         }
