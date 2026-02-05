@@ -1,7 +1,7 @@
 import io.gitlab.arturbosch.detekt.Detekt
 
 plugins {
-    kotlin("jvm") version "2.3.0"
+    kotlin("jvm") version "2.3.10"
     `maven-publish`
     signing
     alias(libs.plugins.ktlint)
