@@ -12,10 +12,6 @@ group = "com.pkware.ahocorasick"
 val lowMemoryAhoCorasickVersion: String by project
 version = lowMemoryAhoCorasickVersion
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.junit.jupiter.params)
