@@ -1,7 +1,7 @@
 [versions]
 junitVersion = "5.14.3"
 detektVersion = "1.23.8"
-ktlintVersion = "14.0.1"
+ktlintVersion = "14.2.0"
 
 [libraries]
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitVersion" }
