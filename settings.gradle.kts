@@ -13,7 +13,7 @@ pluginManagement {
 }
 
 plugins {
-    id("com.gradle.develocity") version "4.4.1"
+    id("com.gradle.develocity") version "4.4.2"
 }
 
 val isCiServer = System.getenv().containsKey("CI")
