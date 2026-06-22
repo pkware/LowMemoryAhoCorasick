@@ -119,14 +119,14 @@ style:
     includeLineWrapping: true
   ForbiddenImport:
     active: true
-    imports:
+    forbiddenImports:
       - 'org.junit.Assert'
       - 'org.junit.Test'
       - 'org.junit.Before'
       - 'org.junit.BeforeClass'
       - 'org.junit.After'
       - 'org.junit.AfterClass'
-    forbiddenPatterns: 'junit.framework.*'
+      - 'junit.framework.*'
   ForbiddenComment:
     active: true
     comments: ['FIXME', 'STOPSHIP']
@@ -155,11 +155,11 @@ style:
   RedundantHigherOrderMapUsage:
     active: true
   # TODO: Detekt complains about redundant modifiers even though explicitApi is set to 'strict' in build.gradle.kts
-  RedundantVisibilityModifierRule:
+  RedundantVisibilityModifier:
     active: false
   ReturnCount:
     active: false
-  SpacingBetweenPackageAndImports:
+  SpacingAfterPackageAndImports:
     active: true
   UnderscoresInNumericLiterals:
     active: true
@@ -168,7 +168,7 @@ style:
     active: true
   UnnecessaryLet:
     active: true
-  UntilInsteadOfRangeTo:
+  RangeUntilInsteadOfRangeTo:
     active: true
   UseArrayLiteralsInAnnotations:
     active: true

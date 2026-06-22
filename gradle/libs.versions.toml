@@ -1,6 +1,6 @@
 [versions]
 junitVersion = "5.14.4"
-detektVersion = "1.23.8"
+detektVersion = "2.0.0-alpha.5"
 ktlintVersion = "14.2.0"
 
 [libraries]
@@ -11,5 +11,5 @@ truth = "com.google.truth:truth:1.4.5"
 
 [plugins]
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintVersion" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersion" }
+detekt = { id = "dev.detekt", version.ref = "detektVersion" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }

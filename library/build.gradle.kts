@@ -1,5 +1,3 @@
-import io.gitlab.arturbosch.detekt.Detekt
-
 plugins {
     kotlin("jvm")
     `maven-publish`
@@ -28,9 +26,9 @@ kotlin {
     jvmToolchain { languageVersion.set(JavaLanguageVersion.of(8)) }
 }
 
-tasks.withType<Detekt>().configureEach {
+detekt {
     parallel = true
-    config.from(rootProject.file("detekt.yml"))
+    config.setFrom(rootProject.file("detekt.yml"))
     buildUponDefaultConfig = true
 }
 

@@ -1,5 +1,3 @@
-import io.gitlab.arturbosch.detekt.Detekt
-
 plugins {
     kotlin("jvm")
     kotlin("plugin.allopen")
@@ -24,14 +22,10 @@ kotlin {
     jvmToolchain(25)
 }
 
-tasks.withType<Detekt>().configureEach {
+detekt {
     parallel = true
-    config.from(rootProject.file("detekt.yml"))
+    config.setFrom(rootProject.file("detekt.yml"))
     buildUponDefaultConfig = true
-    // The module compiles on a JDK 25 toolchain (for the JMH fork), but detekt's bundled compiler
-    // only accepts jvmTarget up to 22. Pin the static-analysis target to an LTS detekt supports; it
-    // does not affect the compiled/forked bytecode.
-    jvmTarget = "21"
 }
 
 allOpen {
