@@ -16,6 +16,10 @@ plugins {
     id("com.gradle.develocity") version "4.4.3"
 }
 
+rootProject.name = "low-memory-aho-corasick-root"
+
+include("library", "benchmarks")
+
 val isCiServer = System.getenv().containsKey("CI")
 
 develocity {
