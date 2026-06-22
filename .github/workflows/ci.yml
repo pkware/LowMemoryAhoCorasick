@@ -23,17 +23,25 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up JDK
+      - name: Set up JDKs
         uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
         with:
-          java-version: 8
+          # JDK 8 runs the Gradle daemon and is the :library toolchain; JDK 25 is the :benchmarks
+          # toolchain. 8 is listed last so JAVA_HOME points at it — the daemon must NOT run on JDK 25
+          # (Gradle 8.14.5's Kotlin DSL compiler cannot parse a "25.x" daemon version).
+          java-version: |
+            25
+            8
           distribution: 'temurin'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0 # zizmor: ignore[cache-poisoning]
 
       - name: Build with Gradle
-        run: ./gradlew build
+        # Build + test the library, build + test the benchmark generator, and compile the JMH benchmark
+        # sources via jmhJar — catching benchmark compilation regressions WITHOUT running any benchmark.
+        # fromEnv exposes the setup-java JDKs to Gradle's toolchain resolution.
+        run: ./gradlew build :benchmarks:jmhJar -Porg.gradle.java.installations.fromEnv=JAVA_HOME_8_X64,JAVA_HOME_25_X64
 
       - name: Upload Test Results
         if: always()
