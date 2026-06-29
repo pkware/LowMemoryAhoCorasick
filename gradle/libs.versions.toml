@@ -13,3 +13,4 @@ truth = "com.google.truth:truth:1.4.5"
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintVersion" }
 detekt = { id = "dev.detekt", version.ref = "detektVersion" }
 jmh = { id = "me.champeau.jmh", version = "0.7.3" }
+maven-publish = { id = "com.vanniktech.maven.publish", version = "0.37.0" }
