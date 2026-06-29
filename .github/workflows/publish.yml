@@ -26,30 +26,10 @@ jobs:
         uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0 # zizmor: ignore[cache-poisoning]
 
       - name: Publish to Maven Central
-        run: ./gradlew :library:publish
+        run: ./gradlew :library:publishToMavenCentral
         env:
-          ORG_GRADLE_PROJECT_NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          ORG_GRADLE_PROJECT_NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-          ORG_GRADLE_PROJECT_SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
-          ORG_GRADLE_PROJECT_SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          ORG_GRADLE_PROJECT_SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-
-      - name: Check version
-        id: version
-        run: |
-          version=$(grep "lowMemoryAhoCorasickVersion" gradle.properties | cut -d'=' -f2 | tr -d ' ')
-          if [[ "$version" != *"SNAPSHOT"* ]]; then
-            echo "is_release=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_release=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Notify Central Publisher Portal
-        if: steps.version.outputs.is_release == 'true'
-        run: |
-          token=$(echo -n "${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}" | base64)
-          curl -X POST \
-            --max-time 30 \
-            --fail-with-body \
-            -H "Authorization: Bearer $token" \
-            "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/com.pkware.ahocorasick?publishing_type=automatic"
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.NEXUS_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
