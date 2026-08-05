@@ -1,6 +1,6 @@
 [versions]
 junitVersion = "5.14.4"
-detektVersion = "2.0.0-alpha.5"
+detektVersion = "2.0.0-alpha.6"
 ktlintVersion = "14.2.0"
 
 [libraries]
