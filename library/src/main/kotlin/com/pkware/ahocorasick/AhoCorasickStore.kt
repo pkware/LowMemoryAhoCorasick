@@ -45,6 +45,29 @@ internal class AhoCorasickStore {
     private var store2: SafeIndexable = DoubleArrayIntList(RESERVED_VALUE)
 
     /**
+     * Raw backing arrays for the match hot path, captured by [buildRuntimeStructures].
+     *
+     * The matcher reads transitions directly as `int[]` through these, bypassing the [SafeIndexable] virtual dispatch
+     * that the build-time accessors go through. They alias the post-build [UnboxedIntList] backing arrays, so they are
+     * only valid after [buildRuntimeStructures] runs; reading them before then throws. Named by their post-build
+     * meaning: [runtimeFailureIndices] aliases [store1], [runtimePrefixIndices] aliases [store2].
+     */
+    lateinit var runtimeBaseOffsets: IntArray
+        private set
+
+    lateinit var runtimeParents: IntArray
+        private set
+
+    lateinit var runtimeValues: IntArray
+        private set
+
+    lateinit var runtimeFailureIndices: IntArray
+        private set
+
+    lateinit var runtimePrefixIndices: IntArray
+        private set
+
+    /**
      * Sets the base offset of a node at the given index.
      *
      * This is the value offset added to child offsets in order to derive their index.
@@ -229,6 +252,14 @@ internal class AhoCorasickStore {
         values = values.toIntList()
         store1 = store1.toIntList()
         store2 = store2.toIntList()
+
+        // Capture the backing arrays so the match path can index transitions directly, skipping SafeIndexable
+        // dispatch. Each list above is now an UnboxedIntList whose backing array length equals its logical size.
+        runtimeBaseOffsets = (baseOffsets as UnboxedIntList).backingArray
+        runtimeParents = (parents as UnboxedIntList).backingArray
+        runtimeValues = (values as UnboxedIntList).backingArray
+        runtimeFailureIndices = (store1 as UnboxedIntList).backingArray
+        runtimePrefixIndices = (store2 as UnboxedIntList).backingArray
     }
 
     /**
