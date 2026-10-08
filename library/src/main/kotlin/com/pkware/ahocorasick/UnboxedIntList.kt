@@ -38,6 +38,16 @@ internal class UnboxedIntList(
      */
     private var array = IntArray(max(initialCapacity, 1)) { defaultValue }
 
+    /**
+     * The raw backing array, exposed so the Aho-Corasick match path can read transitions directly as `int[]` instead
+     * of through the [SafeIndexable] virtual dispatch.
+     *
+     * For a list produced by [AhoCorasickStore.buildRuntimeStructures] the backing array's length equals [size], so
+     * callers may index it directly. A structural change ([add], [safeSet], or any resize) may replace this array, so
+     * callers must re-fetch it after any mutation.
+     */
+    val backingArray: IntArray get() = array
+
     override operator fun get(index: Int) = array[index]
 
     override operator fun set(index: Int, value: Int): Unit = array.set(index, value)

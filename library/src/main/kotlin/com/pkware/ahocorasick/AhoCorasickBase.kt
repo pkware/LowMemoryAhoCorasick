@@ -413,16 +413,24 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
      */
     private fun calculateNextState(startingNode: Int, offset: Int): Int {
 
+        // Read the post-build backing arrays directly to keep this loop free of SafeIndexable virtual dispatch. The
+        // bounds check against parentCount reproduces safeGetParent: an out-of-range child yields no parent, and
+        // RESERVED_VALUE can never equal a (non-negative) node index, so the check below stays correct.
+        val baseOffsets = store.runtimeBaseOffsets
+        val parents = store.runtimeParents
+        val failureIndices = store.runtimeFailureIndices
+        val parentCount = parents.size
+
         var currentNode = startingNode
 
-        var childNode = store.getBaseOffset(currentNode) + offset
-        var hasValidChild = store.safeGetParent(childNode) == currentNode
+        var childNode = baseOffsets[currentNode] + offset
+        var hasValidChild = childNode < parentCount && parents[childNode] == currentNode
 
         while (!hasValidChild && currentNode != ROOT_NODE) {
 
-            currentNode = store.getFailureIndex(currentNode)
-            childNode = store.getBaseOffset(currentNode) + offset
-            hasValidChild = store.safeGetParent(childNode) == currentNode
+            currentNode = failureIndices[currentNode]
+            childNode = baseOffsets[currentNode] + offset
+            hasValidChild = childNode < parentCount && parents[childNode] == currentNode
         }
 
         // The current node will always be ROOT_NODE if no valid child is found.
@@ -873,6 +881,11 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
 
         var nextNode: Int = RESERVED_VALUE
 
+        // Captured once so the per-result value and prefix reads avoid SafeIndexable virtual dispatch. The spliterator
+        // is only created post-build (parse requires isBuilt), so these arrays are always initialized here.
+        private val values = store.runtimeValues
+        private val prefixIndices = store.runtimePrefixIndices
+
         override fun tryAdvance(action: Consumer<in AhoCorasickResult<T>>): Boolean {
 
             while (currentInputIndex < input.length || nextNode != RESERVED_VALUE) {
@@ -880,16 +893,16 @@ public abstract class AhoCorasickBase<T> @JvmOverloads constructor(options: Set<
                 var nextValue: Int
                 if (nextNode == RESERVED_VALUE) {
                     currentNode = calculateNextState(currentNode, input[currentInputIndex++].normalize().code)
-                    nextNode = store.getPrefixIndex(currentNode)
-                    nextValue = store.getValue(currentNode)
+                    nextNode = prefixIndices[currentNode]
+                    nextValue = values[currentNode]
 
                     // Determine if the current node is the end of a string.
                     if (nextValue == RESERVED_VALUE) continue
                 } else {
 
                     // Add any other values whose keys are equal to a suffix of the path from the root to current node.
-                    nextValue = store.getValue(nextNode)
-                    nextNode = store.getPrefixIndex(nextNode)
+                    nextValue = values[nextNode]
+                    nextNode = prefixIndices[nextNode]
                 }
 
                 val result = generateResult(currentInputIndex, nextValue, input)
