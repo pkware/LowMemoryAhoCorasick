@@ -13,7 +13,7 @@ pluginManagement {
 }
 
 plugins {
-    id("com.gradle.develocity") version "4.6.0"
+    id("com.gradle.develocity") version "4.6.1"
 }
 
 rootProject.name = "low-memory-aho-corasick-root"
